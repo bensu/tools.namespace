@@ -9,8 +9,16 @@
 (ns ^{:author "Stuart Sierra"
       :doc "Read and track namespace information from files"}
   clojure.tools.namespace.file
-  (:require [clojure.tools.namespace.parse :as parse]
+  (:require [cljs.nodejs :as nodejs]
+            [cljs.tools.reader.reader-types :as reader]
+            [clojure.tools.namespace.parse :as parse]
             [clojure.tools.namespace.track :as track]))
+
+(nodejs/enable-util-print!)
+
+(def fs (js/require "fs"))
+
+(def path (js/require "path"))
 
 (defn read-file-ns-decl
   "Attempts to read a (ns ...) declaration from file, and returns the
@@ -20,18 +28,20 @@
   ([file]
    (read-file-ns-decl file nil))
   ([file read-opts]
-   (with-open [rdr (PushbackReader. (io/reader file))]
-     (try (parse/read-ns-decl rdr read-opts)
-          (catch Exception _ nil)))))
+   (try (let [s (fs.readFileSync file "utf8")
+              rdr (reader/string-push-back-reader s)]
+          (parse/read-ns-decl rdr read-opts))
+        (catch js/Object _ nil))))
 
 (defn file-with-extension?
   "Returns true if the java.io.File represents a file whose name ends
   with one of the Strings in extensions."
   {:added "0.3.0"}
-  [^java.io.File file extensions]
-  (and (.isFile file)
-       (let [name (.getName file)]
-         (some #(.endsWith name %) extensions))))
+  [file extensions]
+  ;; TODO should take file objects (whatever those are!)
+  #_(.isFile file)
+  (and (let [ext (path.extname file)]
+         (some (partial = ext) extensions))))
 
 (def ^{:added "0.3.0"}
   clojure-extensions
@@ -46,14 +56,14 @@
 (defn clojure-file?
   "Returns true if the java.io.File represents a file which will be
   read by the Clojure (JVM) compiler."
-  [^java.io.File file]
+  [file]
   (file-with-extension? file clojure-extensions))
 
 (defn clojurescript-file?
   "Returns true if the java.io.File represents a file which will be
   read by the ClojureScript compiler."
   {:added "0.3.0"}
-  [^java.io.File file]
+  [file]
   (file-with-extension? file clojurescript-extensions))
 
 ;;; Dependency tracker
