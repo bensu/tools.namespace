@@ -14,11 +14,16 @@
             [clojure.tools.namespace.parse :as parse]
             [clojure.tools.namespace.track :as track]))
 
+;; IO
+
 (nodejs/enable-util-print!)
 
 (def fs (js/require "fs"))
 
 (def path (js/require "path"))
+
+(defn ends-with? [ext file]
+  (= (path.extname file) ext))
 
 (defn read-file-ns-decl
   "Attempts to read a (ns ...) declaration from file, and returns the
@@ -40,8 +45,7 @@
   [file extensions]
   ;; TODO should take file objects (whatever those are!)
   #_(.isFile file)
-  (and (let [ext (path.extname file)]
-         (some (partial = ext) extensions))))
+  (and (some #(ends-with? % file) extensions)))
 
 (def ^{:added "0.3.0"}
   clojure-extensions

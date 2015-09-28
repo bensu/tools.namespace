@@ -110,9 +110,9 @@
 
 ;; ;;; Finding namespaces in JAR files
 
-;; (defn- ends-with-extension
-;;   [^String filename extensions]
-;;   (some #(.endsWith filename %) extensions))
+(defn- ends-with-extension
+  [^String filename extensions]
+  (some #(file/ends-with? % filename) extensions))
 
 ;; (defn sources-in-jar
 ;;   "Returns a sequence of source file names found in the JAR file.
@@ -179,37 +179,33 @@
 ;;    (map second (find-ns-decls-in-jarfile jarfile platform))))
 
 
-;; ;;; Finding namespaces
+;;; Finding namespaces
 
-;; (defn find-ns-decls
-;;   "Searches a sequence of java.io.File objects (both directories and
-;;   JAR files) for platform source files containing (ns...)
-;;   declarations. Returns a sequence of the unevaluated ns declaration
-;;   forms. Use with clojure.java.classpath to search Clojure's
-;;   classpath.
+(defn find-ns-decls
+  "Searches a sequence of java.io.File objects (both directories and
+  JAR files) for platform source files containing (ns...)
+  declarations. Returns a sequence of the unevaluated ns declaration
+  forms. Use with clojure.java.classpath to search Clojure's
+  classpath.
 
-;;   Optional second argument platform is either clj (default) or cljs,
-;;   both defined in clojure.tools.namespace.find."
-;;   ([files]
-;;    (find-ns-decls files nil))
-;;   ([files platform]
-;;    (concat
-;;     (mapcat #(find-ns-decls-in-dir % platform)
-;;             (filter #(.isDirectory ^File %) files))
-;;     (mapcat #(find-ns-decls-in-jarfile % platform)
-;;             (map #(JarFile. (io/file %))
-;;                  (filter classpath/jar-file? files))))))
+  Optional second argument platform is either clj (default) or cljs,
+  both defined in clojure.tools.namespace.find."
+  ([files]
+   (find-ns-decls files nil))
+  ([files platform]
+   (mapcat #(find-ns-decls-in-dir % platform)
+     (filter dir? files))))
 
-;; (defn find-namespaces
-;;   "Searches a sequence of java.io.File objects (both directories and
-;;   JAR files) for platform source files containing (ns...)
-;;   declarations. Returns a sequence of the symbol names of the declared
-;;   namespaces. Use with clojure.java.classpath to search Clojure's
-;;   classpath.
+(defn find-namespaces
+  "Searches a sequence of java.io.File objects (both directories and
+  JAR files) for platform source files containing (ns...)
+  declarations. Returns a sequence of the symbol names of the declared
+  namespaces. Use with clojure.java.classpath to search Clojure's
+  classpath.
 
-;;   Optional second argument platform is either clj (default) or cljs,
-;;   both defined in clojure.tools.namespace.find."
-;;   ([files]
-;;    (find-namespaces files nil))
-;;   ([files platform]
-;;    (map second (find-ns-decls files platform))))
+  Optional second argument platform is either clj (default) or cljs,
+  both defined in clojure.tools.namespace.find."
+  ([files]
+   (find-namespaces files nil))
+  ([files platform]
+   (map second (find-ns-decls files platform))))
