@@ -1,2 +1,2 @@
 #!/bin/sh
-rlwrap java -cp cljs.jar:src/main/clojure clojure.main script/node_repl.clj
+rlwrap java -cp cljs.jar:src/main/clojure:src/test/clojure clojure.main script/node_repl.clj

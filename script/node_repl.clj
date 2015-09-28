@@ -3,5 +3,5 @@
 (require 'cljs.repl.node)
 
 (cljs.repl/repl (cljs.repl.node/repl-env)
-  :watch "src/main/clojure"
+  :watch (apply cljs.build.api/inputs "src/main/clojure" "src/test/clojure")
   :output-dir "out")
