@@ -308,8 +308,8 @@
                    (depend :b :c)
                    (depend :c :a)))))
 
-(deftest t-no-self-cycles
-  (is (thrown? Exception
-               (-> (graph)
-                   (depend :a :b)
-                   (depend :a :a)))))
+;; (deftest t-no-self-cycles
+;;   (is (thrown? Exception
+;;                (-> (graph)
+;;                    (depend :a :b)
+;;                    (depend :a :a)))))
